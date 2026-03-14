@@ -42,6 +42,7 @@ func main() {
 
 	v1 := e.Group("/api/v1")
 	v1.POST("/events", handler.HandleCreateEvent)
+	v1.GET("/events", handler.HandleGetEvent)
 
 	log.Println("Server is running on port :8080")
 	if err := e.Start(":8080"); err != nil {
