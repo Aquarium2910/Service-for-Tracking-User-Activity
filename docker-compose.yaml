@@ -1,0 +1,15 @@
+services:
+  activity_db:
+    image: postgres:15-alpine
+    container_name: activity_tracker_container
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - activity_tracker_data:/var/lib/postgresql/data
+
+volumes:
+  activity_tracker_data:
