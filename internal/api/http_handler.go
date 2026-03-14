@@ -58,7 +58,8 @@ func (h *HTTPHandler) HandleGetEvent(c echo.Context) error {
 	events, err := h.activityService.GetEvents(c.Request().Context(), &filter)
 
 	if err != nil {
-		if errors.Is(err, service.ErrInvalidUserID) || errors.Is(err, service.ErrInvalidFilter) {
+		if errors.Is(err, service.ErrInvalidUserID) || errors.Is(err, service.ErrInvalidFilter) ||
+			errors.Is(err, service.ErrInvalidDates) {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"error": err.Error(),
 			})

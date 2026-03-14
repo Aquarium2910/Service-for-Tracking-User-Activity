@@ -14,6 +14,7 @@ var (
 	ErrInvalidAction = errors.New("action cannot be empty")
 
 	ErrInvalidFilter = errors.New("filter cannot be nil")
+	ErrInvalidDates  = errors.New("start date cannot be after end date")
 )
 
 type ActivityService interface {
@@ -63,7 +64,7 @@ func (s *activityService) GetEvents(ctx context.Context, filter *models.EventFil
 
 	if !filter.StartDate.IsZero() && !filter.EndDate.IsZero() {
 		if filter.StartDate.After(filter.EndDate) {
-			return nil, fmt.Errorf("activityService.GetEvents - filter error: start date cannot be after end date")
+			return nil, fmt.Errorf("activityService.GetEvents - filter error: %w", ErrInvalidDates)
 		}
 	}
 
