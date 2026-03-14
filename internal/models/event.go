@@ -12,3 +12,9 @@ type Event struct {
 	Metadata  json.RawMessage `json:"metadata"`
 	CreatedAt time.Time       `json:"created_at"`
 }
+
+type EventFilter struct {
+	UserID    int
+	StartDate time.Time
+	EndDate   time.Time
+}
