@@ -14,7 +14,7 @@ type Event struct {
 }
 
 type EventFilter struct {
-	UserID    int
-	StartDate time.Time
-	EndDate   time.Time
+	UserID    int       `query:"user_id"`
+	StartDate time.Time `query:"start_date"`
+	EndDate   time.Time `query:"end_date"`
 }

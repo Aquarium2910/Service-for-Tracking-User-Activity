@@ -45,3 +45,29 @@ func (h *HTTPHandler) HandleCreateEvent(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, event)
 }
+
+func (h *HTTPHandler) HandleGetEvent(c echo.Context) error {
+	var filter models.EventFilter
+
+	if err := c.Bind(&filter); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid query parameters",
+		})
+	}
+
+	events, err := h.activityService.GetEvents(c.Request().Context(), &filter)
+
+	if err != nil {
+		if errors.Is(err, service.ErrInvalidUserID) || errors.Is(err, service.ErrInvalidFilter) {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "internal server error while getting event",
+		})
+	}
+
+	return c.JSON(http.StatusOK, events)
+}
