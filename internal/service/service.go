@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"test/internal/database"
 	"test/internal/models"
 )
 
@@ -11,19 +13,15 @@ var (
 	ErrInvalidAction = errors.New("action cannot be empty")
 )
 
-type EventRepository interface {
-	Create(ctx context.Context, event *models.Event) error
-}
-
 type ActivityService interface {
 	CreateEvent(ctx context.Context, event *models.Event) error
 }
 
 type activityService struct {
-	repo EventRepository
+	repo database.EventRepo
 }
 
-func NewActivityService(repo EventRepository) ActivityService {
+func NewActivityService(repo database.EventRepo) ActivityService {
 	return &activityService{
 		repo: repo,
 	}
@@ -40,7 +38,7 @@ func (s *activityService) CreateEvent(ctx context.Context, event *models.Event) 
 
 	err := s.repo.Create(ctx, event)
 	if err != nil {
-		return err
+		return fmt.Errorf("activityService.CreateEvent - repository error: %w", err)
 	}
 
 	return nil
