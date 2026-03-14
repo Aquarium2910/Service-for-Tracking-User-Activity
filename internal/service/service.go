@@ -9,12 +9,16 @@ import (
 )
 
 var (
+	ErrInvalidEvent  = errors.New("event cannot be nil")
 	ErrInvalidUserID = errors.New("user_id must be greater than 0")
 	ErrInvalidAction = errors.New("action cannot be empty")
+
+	ErrInvalidFilter = errors.New("filter cannot be nil")
 )
 
 type ActivityService interface {
 	CreateEvent(ctx context.Context, event *models.Event) error
+	GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error)
 }
 
 type activityService struct {
@@ -28,6 +32,10 @@ func NewActivityService(repo database.EventRepo) ActivityService {
 }
 
 func (s *activityService) CreateEvent(ctx context.Context, event *models.Event) error {
+	if event == nil {
+		return fmt.Errorf("activityService.CreateEvent - %w", ErrInvalidEvent)
+	}
+
 	if event.UserID <= 0 {
 		return ErrInvalidUserID
 	}
@@ -42,4 +50,28 @@ func (s *activityService) CreateEvent(ctx context.Context, event *models.Event) 
 	}
 
 	return nil
+}
+
+func (s *activityService) GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error) {
+	if filter == nil {
+		return nil, fmt.Errorf("activityService.GetEvents - filter error: %w", ErrInvalidFilter)
+	}
+
+	if filter.UserID <= 0 {
+		return nil, fmt.Errorf("activityService.GetEvents - filter error: %w", ErrInvalidUserID)
+	}
+
+	if !filter.StartDate.IsZero() && !filter.EndDate.IsZero() {
+		if filter.StartDate.After(filter.EndDate) {
+			return nil, fmt.Errorf("activityService.GetEvents - filter error: start date cannot be after end date")
+		}
+	}
+
+	events, err := s.repo.GetEvents(ctx, filter)
+
+	if err != nil {
+		return nil, fmt.Errorf("activityService.GetEvents - repository error: %w", err)
+	}
+
+	return events, nil
 }
