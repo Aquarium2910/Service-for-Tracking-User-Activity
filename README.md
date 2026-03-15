@@ -25,12 +25,21 @@ The simplest way to run everything (Database, Backend, and Frontend) is using Do
 
 1. Ensure you have **Docker** (which includes Compose v2) installed.
 2. Clone the repository and navigate to the root directory.
-3. Run the following command:
+3. Prepare the environment variables:
+   ```bash
+   # Linux / macOS / PowerShell
+   cp .env.example .env
+
+   # Windows CMD
+   copy .env.example .env
+
+   ```
+4. Run the following command:
    ```bash
    docker compose up --build
    ```
 4. Access the services:
-   - **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
+   - **Frontend**: [http://localhost:3000](http://localhost:3000)
    - **Backend API**: [http://localhost:8080](http://localhost:8080)
 
 ### Option 2: Local Development
