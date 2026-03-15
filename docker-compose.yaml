@@ -11,6 +11,27 @@ services:
     volumes:
       - activity_tracker_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: always
+
+  activity_api:
+    build: .
+    container_name: activity_tracker_api
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=postgres://${DB_USER}:${DB_PASSWORD}@activity_db:5432/${DB_NAME}?sslmode=disable
+    depends_on:
+      - activity_db
+    restart: always
+
+  activity_ui:
+    build: ./frontend
+    container_name: activity_tracker_ui
+    ports:
+      - "3000:80"
+    depends_on:
+      - activity_api
+    restart: always
 
 volumes:
   activity_tracker_data:
