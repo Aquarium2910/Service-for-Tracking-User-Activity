@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"test/internal/models"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -11,6 +12,7 @@ import (
 type EventRepo interface {
 	Create(ctx context.Context, event *models.Event) error
 	GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error)
+	AggregateActivity(ctx context.Context, start time.Time, end time.Time) error
 }
 
 type eventRepo struct {
@@ -76,4 +78,21 @@ func (r *eventRepo) GetEvents(ctx context.Context, filter *models.EventFilter) (
 	}
 
 	return events, nil
+}
+
+func (r *eventRepo) AggregateActivity(ctx context.Context, start time.Time, end time.Time) error {
+	query := `
+		INSERT INTO activity_stats (user_id, start_time, end_time, event_count)
+		SELECT user_id, $1, $2, COUNT(id)
+		FROM events
+		WHERE created_at >= $1 AND created_at < $2
+		GROUP BY user_id
+	`
+
+	_, err := r.db.Exec(ctx, query, start, end)
+	if err != nil {
+		return fmt.Errorf("EventRepo.AggregateActivity - failed to execute aggregation: %w", err)
+	}
+
+	return nil
 }

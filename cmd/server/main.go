@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"os"
+	"test/internal/worker"
+	"time"
 
 	"test/internal/api"
 	"test/internal/database"
@@ -37,6 +39,9 @@ func main() {
 	repo := database.NewEventRepo(dbPool)
 	svc := service.NewActivityService(repo)
 	handler := api.NewHTTPHandler(svc)
+
+	activityWorker := worker.NewActivityWorker(svc, 4*time.Hour)
+	go activityWorker.Start(ctx)
 
 	e := echo.New()
 

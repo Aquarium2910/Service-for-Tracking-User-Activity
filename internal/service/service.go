@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"test/internal/database"
 	"test/internal/models"
 )
@@ -15,11 +17,13 @@ var (
 
 	ErrInvalidFilter = errors.New("filter cannot be nil")
 	ErrInvalidDates  = errors.New("start date cannot be after end date")
+	ErrMissingDates  = errors.New("start and end dates are required")
 )
 
 type ActivityService interface {
 	CreateEvent(ctx context.Context, event *models.Event) error
 	GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error)
+	ProcessActivityStats(ctx context.Context, start time.Time, end time.Time) error
 }
 
 type activityService struct {
@@ -75,4 +79,21 @@ func (s *activityService) GetEvents(ctx context.Context, filter *models.EventFil
 	}
 
 	return events, nil
+}
+
+func (s *activityService) ProcessActivityStats(ctx context.Context, start time.Time, end time.Time) error {
+	if start.IsZero() || end.IsZero() {
+		return fmt.Errorf("activityService.ProcessActivityStats - validation error: %w", ErrMissingDates)
+	}
+
+	if start.After(end) {
+		return fmt.Errorf("activityService.ProcessActivityStats - validation error: %w", ErrInvalidDates)
+	}
+
+	err := s.repo.AggregateActivity(ctx, start, end)
+	if err != nil {
+		return fmt.Errorf("activityService.ProcessActivityStats - repository error: %w", err)
+	}
+
+	return nil
 }
