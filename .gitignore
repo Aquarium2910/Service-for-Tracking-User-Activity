@@ -31,3 +31,7 @@ out/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Frontend dependencies and builds
+node_modules/
+dist/
