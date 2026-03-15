@@ -25,12 +25,21 @@ The simplest way to run everything (Database, Backend, and Frontend) is using Do
 
 1. Ensure you have **Docker** (which includes Compose v2) installed.
 2. Clone the repository and navigate to the root directory.
-3. Run the following command:
+3. Prepare the environment variables:
+   ```bash
+   # Linux / macOS / PowerShell
+   cp .env.example .env
+
+   # Windows CMD
+   copy .env.example .env
+
+   ```
+4. Run the following command:
    ```bash
    docker compose up --build
    ```
 4. Access the services:
-   - **Frontend Dashboard**: [http://localhost:3000](http://localhost:3000)
+   - **Frontend**: [http://localhost:3000](http://localhost:3000)
    - **Backend API**: [http://localhost:8080](http://localhost:8080)
 
 ### Option 2: Local Development
@@ -89,7 +98,6 @@ The service includes a background worker (located in `internal/worker/cron.go`) 
 - **Database Initialization**: The system uses `init.sql` mounted via Docker to automatically create the necessary tables (`events`, `activity_stats`) on the first run.
 - **Structured Logging**: Implemented using the standard `log/slog` package for JSON-formatted logs.
 - **CORS Handling**: Configured to allow cross-origin requests from both development (port 5173) and Docker (port 3000) environments.
-- **Metadata**: Meta-data is stored as `JSONB` in PostgreSQL, allowing for complex and searchable event data.
 
 ---
 
