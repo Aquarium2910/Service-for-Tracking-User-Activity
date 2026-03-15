@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"log/slog"
 	"os"
 	"test/internal/worker"
 	"time"
@@ -18,6 +19,10 @@ import (
 
 func main() {
 	_ = godotenv.Load()
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
@@ -38,9 +43,9 @@ func main() {
 
 	repo := database.NewEventRepo(dbPool)
 	svc := service.NewActivityService(repo)
-	handler := api.NewHTTPHandler(svc)
+	handler := api.NewHTTPHandler(svc, logger)
 
-	activityWorker := worker.NewActivityWorker(svc, 4*time.Hour)
+	activityWorker := worker.NewActivityWorker(svc, 4*time.Hour, logger)
 	go activityWorker.Start(ctx)
 
 	e := echo.New()
@@ -49,7 +54,7 @@ func main() {
 	v1.POST("/events", handler.HandleCreateEvent)
 	v1.GET("/events", handler.HandleGetEvent)
 
-	log.Println("Server is running on port :8080")
+	logger.Info("Server is running", slog.String("port", ":8080"))
 	if err := e.Start(":8080"); err != nil {
 		log.Fatalf("server error: %v", err)
 	}

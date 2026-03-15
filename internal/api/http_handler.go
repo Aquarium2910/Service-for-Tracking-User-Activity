@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"test/internal/models"
@@ -12,11 +13,13 @@ import (
 
 type HTTPHandler struct {
 	activityService service.ActivityService
+	logger          *slog.Logger
 }
 
-func NewHTTPHandler(activityService service.ActivityService) *HTTPHandler {
+func NewHTTPHandler(activityService service.ActivityService, logger *slog.Logger) *HTTPHandler {
 	return &HTTPHandler{
 		activityService: activityService,
+		logger:          logger.With("component", "http_handler"),
 	}
 }
 
@@ -38,6 +41,7 @@ func (h *HTTPHandler) HandleCreateEvent(c echo.Context) error {
 			})
 		}
 
+		h.logger.Error("unexpected error in HandleCreateEvent", slog.Any("error", err))
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "internal server error while saving event",
 		})
@@ -65,6 +69,7 @@ func (h *HTTPHandler) HandleGetEvent(c echo.Context) error {
 			})
 		}
 
+		h.logger.Error("unexpected error in HandleGetEvent", slog.Any("error", err))
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "internal server error while getting event",
 		})
