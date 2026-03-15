@@ -10,6 +10,7 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - activity_tracker_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 volumes:
   activity_tracker_data:
