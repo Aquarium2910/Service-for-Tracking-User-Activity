@@ -10,12 +10,14 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - activity_tracker_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
 
   activity_api:
-    build: .
+    build: ./backend
     container_name: activity_tracker_api
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     environment:
