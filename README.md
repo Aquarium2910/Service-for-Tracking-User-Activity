@@ -103,7 +103,7 @@ The service includes a background worker (located in `internal/worker/cron.go`) 
 
 ## 📂 Project Structure
 - `cmd/server/`: Main entry point for the API server.
-- `internal/api/`: HTTP handlers and routing.
+- `internal/handlers/`: HTTP handlers and routing.
 - `internal/database/`: Repository layer for PostgreSQL interaction.
 - `internal/models/`: Data structures and entity definitions.
 - `internal/service/`: Business logic.

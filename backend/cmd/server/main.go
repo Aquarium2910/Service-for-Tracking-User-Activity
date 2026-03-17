@@ -4,19 +4,17 @@ import (
 	"context"
 	"log"
 	"log/slog"
-	"net/http"
 	"os"
 	"test/internal/worker"
 	"time"
 
-	"test/internal/api"
 	"test/internal/database"
+	"test/internal/handlers"
 	"test/internal/service"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -45,22 +43,13 @@ func main() {
 
 	repo := database.NewEventRepo(dbPool)
 	svc := service.NewActivityService(repo)
-	handler := api.NewHTTPHandler(svc, logger)
+	handler := handlers.NewHandler(svc, logger)
+
+	e := echo.New()
+	handler.RegisterRoutes(e)
 
 	activityWorker := worker.NewActivityWorker(svc, 4*time.Hour, logger)
 	go activityWorker.Start(ctx)
-
-	e := echo.New()
-
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
-		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodOptions},
-		AllowHeaders: []string{echo.HeaderContentType},
-	}))
-
-	v1 := e.Group("/api/v1")
-	v1.POST("/events", handler.HandleCreateEvent)
-	v1.GET("/events", handler.HandleGetEvent)
 
 	logger.Info("Server is running", slog.String("port", ":8080"))
 	if err := e.Start(":8080"); err != nil {

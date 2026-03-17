@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"errors"
@@ -11,19 +11,19 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HTTPHandler struct {
+type Handler struct {
 	activityService service.ActivityService
 	logger          *slog.Logger
 }
 
-func NewHTTPHandler(activityService service.ActivityService, logger *slog.Logger) *HTTPHandler {
-	return &HTTPHandler{
+func NewHandler(activityService service.ActivityService, logger *slog.Logger) *Handler {
+	return &Handler{
 		activityService: activityService,
 		logger:          logger.With("component", "http_handler"),
 	}
 }
 
-func (h *HTTPHandler) HandleCreateEvent(c echo.Context) error {
+func (h *Handler) HandleCreateEvent(c echo.Context) error {
 	var event models.Event
 
 	if err := c.Bind(&event); err != nil {
@@ -50,7 +50,7 @@ func (h *HTTPHandler) HandleCreateEvent(c echo.Context) error {
 	return c.JSON(http.StatusCreated, event)
 }
 
-func (h *HTTPHandler) HandleGetEvent(c echo.Context) error {
+func (h *Handler) HandleGetEvent(c echo.Context) error {
 	var filter models.EventFilter
 
 	if err := c.Bind(&filter); err != nil {
