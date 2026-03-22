@@ -9,17 +9,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type EventRepo interface {
-	Create(ctx context.Context, event *models.Event) error
-	GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error)
-	AggregateActivity(ctx context.Context, start time.Time, end time.Time) error
-}
-
 type eventRepo struct {
 	db *pgxpool.Pool
 }
 
-func NewEventRepo(db *pgxpool.Pool) EventRepo {
+func NewEventRepo(db *pgxpool.Pool) *eventRepo {
 	return &eventRepo{db: db}
 }
 

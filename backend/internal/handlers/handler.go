@@ -12,11 +12,11 @@ import (
 )
 
 type Handler struct {
-	activityService service.ActivityService
+	activityService ActivityService
 	logger          *slog.Logger
 }
 
-func NewHandler(activityService service.ActivityService, logger *slog.Logger) *Handler {
+func NewHandler(activityService ActivityService, logger *slog.Logger) *Handler {
 	return &Handler{
 		activityService: activityService,
 		logger:          logger.With("component", "http_handler"),

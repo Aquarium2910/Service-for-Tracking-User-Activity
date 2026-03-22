@@ -4,17 +4,15 @@ import (
 	"context"
 	"log/slog"
 	"time"
-
-	"test/internal/service"
 )
 
 type ActivityWorker struct {
-	svc      service.ActivityService
+	svc      WorkerService
 	interval time.Duration
 	logger   *slog.Logger
 }
 
-func NewActivityWorker(svc service.ActivityService, interval time.Duration, logger *slog.Logger) *ActivityWorker {
+func NewActivityWorker(svc WorkerService, interval time.Duration, logger *slog.Logger) *ActivityWorker {
 	return &ActivityWorker{
 		svc:      svc,
 		interval: interval,

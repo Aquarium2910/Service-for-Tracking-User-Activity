@@ -5,21 +5,14 @@ import (
 	"fmt"
 	"time"
 
-	"test/internal/database"
 	"test/internal/models"
 )
 
-type ActivityService interface {
-	CreateEvent(ctx context.Context, event *models.Event) error
-	GetEvents(ctx context.Context, filter *models.EventFilter) ([]models.Event, error)
-	ProcessActivityStats(ctx context.Context, start time.Time, end time.Time) error
-}
-
 type activityService struct {
-	repo database.EventRepo
+	repo EventRepo
 }
 
-func NewActivityService(repo database.EventRepo) ActivityService {
+func NewActivityService(repo EventRepo) *activityService {
 	return &activityService{
 		repo: repo,
 	}
