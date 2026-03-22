@@ -5,33 +5,27 @@ import (
 	"log"
 	"log/slog"
 	"os"
-	"test/internal/worker"
-	"time"
-
+	"test/internal/config"
 	"test/internal/database"
 	"test/internal/handlers"
 	"test/internal/service"
+	"test/internal/worker"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	_ = godotenv.Load()
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
 	}))
 
-	dbURL := os.Getenv("DB_URL")
-	if dbURL == "" {
-		dbURL = "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-	}
+	cfg := config.LoadConfig(logger)
 
 	ctx := context.Background()
 
-	dbPool, err := pgxpool.New(ctx, dbURL)
+	dbPool, err := pgxpool.New(ctx, cfg.DSN())
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
@@ -48,7 +42,7 @@ func main() {
 	e := echo.New()
 	handler.RegisterRoutes(e)
 
-	activityWorker := worker.NewActivityWorker(svc, 4*time.Hour, logger)
+	activityWorker := worker.NewActivityWorker(svc, cfg.WorkerInterval, logger)
 	go activityWorker.Start(ctx)
 
 	logger.Info("Server is running", slog.String("port", ":8080"))
